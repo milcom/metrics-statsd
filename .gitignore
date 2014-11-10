@@ -1,3 +1,7 @@
 target
 *.iml
 .idea
+.cache
+.gradle
+.settings
+build

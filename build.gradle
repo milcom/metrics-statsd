@@ -1,0 +1,68 @@
+version = '1.0.0'
+group = 'com.military'
+
+
+apply plugin: 'java' 
+apply plugin: 'militarybuild'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+ext {
+	metricsVersion = "3.1.0"
+	slf4jVersion = "1.7.5"
+	jUnitVersion = "4.10"
+	mockitoVersion = "1.9.0"
+}
+
+military {
+	manifestTitle = 'Metrics Statsd'
+	strictCoverageChecking = false
+	publishRepo = 'military-libs'
+	artifactPath = 'metrics-statsd'
+}
+
+task sourcesJar(type: Jar, dependsOn:classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn:javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+
+artifacts {
+	archives sourcesJar
+	archives javadocJar
+	archives jar
+}
+
+dependencies {
+    compile group: 'io.dropwizard.metrics', name: 'metrics-core', version:"$metricsVersion"
+	compile group: 'org.slf4j', name: 'slf4j-api', version:"$slf4jVersion"
+    
+	testCompile group: 'org.slf4j', name: 'slf4j-api', version:'$slf4jVersion'
+    testCompile group: 'junit', name: 'junit-dep', version:'$jUnitVersion'
+	testCompile group: 'org.mockito', name: 'mockito-all', version:'$mockitoVersion'
+}
+
+configurations.compile.transitive = false
+
+buildscript {
+	repositories {
+		maven {
+			url 'http://miltest.artifactoryonline.com/miltest/plugins-releases/'
+			credentials {
+			  username = "${artifactory_user}"
+			  password = "${artifactory_password}"
+			}
+		}
+	}
+	dependencies {
+		classpath 'com.military.gradle:militarybuild:+'
+		/*classpath 'com.military.gradle:militarybuild:1.0.0.35'*/
+	}
+}
