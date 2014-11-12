@@ -1,0 +1,12 @@
+machine:
+  java:
+    version: oraclejdk8
+
+dependencies:
+  override:
+    - ./gradlew dependencies  -Dgradle.user.home=$HOME/.gradle -Pbuild_number=${BUILD_NUMBER} -Partifactory_user=$ARTIFACTORY_USER -Partifactory_password=$ARTIFACTORY_PASSWORD -Partifactory_contextUrl=http://miltest.artifactoryonline.com/miltest/
+
+test:
+  override:
+    - ./gradlew build  -Dgradle.user.home=$HOME/.gradle -Pbuild_number=${BUILD_NUMBER} -Partifactory_user=$ARTIFACTORY_USER -Partifactory_password=$ARTIFACTORY_PASSWORD -Partifactory_contextUrl=http://miltest.artifactoryonline.com/miltest/
+
