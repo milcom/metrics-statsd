@@ -51,6 +51,7 @@ public class Statsd implements Closeable {
     }
 
     public void send(String name, String value, StatType statType) throws IOException {
+    	logger.debug(String.format("send.  name=%s, value=%s, statType=%s", name, value, statType));
         String statTypeStr = "";
         switch (statType) {
             case COUNTER:
@@ -82,6 +83,7 @@ public class Statsd implements Closeable {
 
     @Override
     public void close() throws IOException {
+    	logger.debug("Close");
         DatagramPacket packet = newPacket(outputData);
 
         packet.setData(outputData.toByteArray());

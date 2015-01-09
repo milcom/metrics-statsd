@@ -131,7 +131,7 @@ public class StatsdReporter extends ScheduledReporter {
                        SortedMap<String, Histogram> histograms,
                        SortedMap<String, Meter> meters,
                        SortedMap<String, Timer> timers) {
-
+    	LOGGER.debug(String.format("guages=%s.  counters=%s.  histograms=%s.  meters=%s.  timers=%s", gauges, counters, histograms, meters, timers));
         try {
             statsd.connect();
 
@@ -155,18 +155,19 @@ public class StatsdReporter extends ScheduledReporter {
                 reportTimer(entry.getKey(), entry.getValue());
             }
 
-        } catch(IOException e) {
-            LOGGER.warn("Unable to report to StatsD", statsd, e);
+        } catch(Throwable e) {
+            LOGGER.error("Unable to report to StatsD", statsd, e);
         } finally {
             try {
                 statsd.close();
             } catch (IOException e) {
-                LOGGER.debug("Error disconnecting from StatsD server", statsd, e);
+                LOGGER.error("Error disconnecting from StatsD server", statsd, e);
             }
         }
     }
 
     private void reportTimer(String name, Timer timer) throws IOException {
+    	LOGGER.debug(String.format("ReportTimer.  Name=%s.  Timer=%s", name, timer));
         final Snapshot snapshot = timer.getSnapshot();
 
         statsd.send(prefix(name, "max"),
@@ -204,6 +205,7 @@ public class StatsdReporter extends ScheduledReporter {
     }
 
     private void reportMetered(String name, Metered meter) throws IOException {
+    	LOGGER.debug(String.format("reportMeters.  Name=%s.  Meter=%s", name, meter));
         statsd.send(prefix(name, "count"), format(meter.getCount()), Statsd.StatType.GAUGE);
         statsd.send(prefix(name, "m1_rate"),
                 format(convertRate(meter.getOneMinuteRate())),
@@ -220,6 +222,7 @@ public class StatsdReporter extends ScheduledReporter {
     }
 
     private void reportHistogram(String name, Histogram histogram) throws IOException {
+    	LOGGER.debug(String.format("reportHistogram.  Name=%s.  histogram=%s", name, histogram));
         final Snapshot snapshot = histogram.getSnapshot();
         statsd.send(prefix(name, "count"),
                 format(histogram.getCount()),
@@ -257,12 +260,14 @@ public class StatsdReporter extends ScheduledReporter {
     }
 
     private void reportCounter(String name, Counter counter) throws IOException {
+    	LOGGER.debug(String.format("reportCounter.  Name=%s.  counter=%s", name, counter));
         statsd.send(prefix(name, "count"),
                 format(counter.getCount()),
                 Statsd.StatType.COUNTER);
     }
 
     private void reportGauge(String name, Gauge gauge) throws IOException {
+    	LOGGER.debug(String.format("reportGauge.  Name=%s.  gauge=%s", name, gauge));
         final String value = format(gauge.getValue());
         if (value != null) {
             statsd.send(prefix(name), value,
